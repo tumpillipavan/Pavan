@@ -1,9 +1,8 @@
-
-# Stage 1: Build the application
+# Stage 1: Build the React application
 FROM node:22.13.1-slim AS builder
 
-# Set the working directory
-WORKDIR /app/public
+# Set working directory
+WORKDIR /app
 
 # Copy package files and install dependencies
 COPY --link package.json package-lock.json ./
@@ -15,24 +14,17 @@ COPY --link . .
 # Build the application
 RUN npm run build
 
-# Stage 2: Prepare the production image
-FROM node:22.13.1-slim AS final
+# Stage 2: Serve the application with a simple static server
+FROM nginx:alpine AS final
 
-# Set the working directory
-WORKDIR /app
+# Copy the built React app to Nginx's html directory
+COPY --from=builder /app/build /usr/share/nginx/html
 
-# Copy the built application and necessary files from the builder stage
-COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+# Copy a default Nginx config (optional)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Set environment variables     
-ENV NODE_ENV=production
+# Expose the port
+EXPOSE 80
 
-# Expose the application port
-EXPOSE 3000
-
-# Define the command to run the application
-CMD ["npm", "start"]
-
-
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]
