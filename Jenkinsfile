@@ -30,15 +30,15 @@ pipeline {
             }
         }
 
-        stage('Cleanup') {
-            steps {
-                // Stop & remove the container, then force-remove the image
-                bat """
-                    docker rm -f ${CONTAINER_NAME} 2>nul || echo No container to stop/remove
-                    docker rmi -f ${IMAGE_NAME}:latest
-                """
-            }
-        }
+        // stage('Cleanup') {
+        //     steps {
+        //         // Stop & remove the container, then force-remove the image
+        //         bat """
+        //             docker rm -f ${CONTAINER_NAME} 2>nul || echo No container to stop/remove
+        //             docker rmi -f ${IMAGE_NAME}:latest
+        //         """
+        //     }
+        // }
     }
     post {
         always {
