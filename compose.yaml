@@ -3,10 +3,11 @@ services:
     build:
       context: ./React_E-Commerce-main
     ports:
-      - "3000:3000"
+      - "82:82"  # Host:Container port mapping
     restart: unless-stopped
     init: true
     # env_file: ./.env  # Uncomment if .env file exists
+
 networks:
   default:
     driver: bridge
