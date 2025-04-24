@@ -1,23 +1,27 @@
-# Stage 1: Build the React application
+# Stage 1: Build the application
 FROM node:22.13.1-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy only the app directory into the build stage
-COPY app/package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
+COPY package.json package-lock.json ./
+RUN npm ci
 
-COPY app/ .
-
+COPY . .
 RUN npm run build
 
-# Stage 2: Serve with Nginx
-FROM nginx:alpine AS final
+# Stage 2: Prepare the production image
+FROM node:22.13.1-slim AS final
 
-COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /app/build ./build
+
+RUN npm install -g serve
+
+# Change exposed port to 82
+EXPOSE 82
+
+# Serve on port 82 instead of 3000
+CMD ["serve", "-s", "build", "-l", "82"]
+
 
